@@ -1,0 +1,126 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Produtos{% endblock %}
+
+{% block content %}
+<!-- Aqui inicia a pagina -->
+<div class="container">
+  <h1 style="text-align:center"><b>PRODUTOS</b></h1>
+</div>
+
+
+
+<div class="container">
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <a type="button" class="btn btn-secondary" href="{% url 'produto.insert' %}">Novo Produto</a>
+    <a type="button" class="btn btn-secondary" href="{% url 'produto' %}">Atualizar</a>
+    <a type="button" class="btn btn-secondary" href="{% url 'home' %}">Voltar</a>
+  </div>
+  <br>
+  <br>
+  <form action="{% url 'produto' %}" method="POST"> {% csrf_token %}
+    <input type="text" name="search" placeholder="Digite o código do produto">
+    <input type="submit" value="Pesquise">
+  </form>
+  <br>
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th>Codigo</th>
+        <th>Descricao</th>
+        <th>Controla Sequencia Produção
+          <select id="controlseqprod" onchange="filtrarLista()">
+            {% if controleseqprod == 'T' or controleseqprod == None %}
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+              <option value="N">Não</option>
+            {% elif controleseqprod == 'S' %}
+              <option value="S">Sim</option>
+              <option value="T">Todos</option>
+              <option value="N">Não</option>
+            {% elif controleseqprod == 'N' %}
+              <option value="N">Não</option>
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+            {% endif %}
+          </select>
+        </th>
+        <th>Ativo
+          <select id="ativo" onchange="filtrarLista()">
+            {% if ativo == 'T' or ativo == None %}
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+              <option value="N">Não</option>
+            {% elif ativo == 'S' %}
+              <option value="S">Sim</option>
+              <option value="T">Todos</option>
+              <option value="N">Não</option>
+            {% elif ativo == 'N' %}
+              <option value="N">Não</option>
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+            {% endif %}
+          </select>
+        </th>
+        <th>Jiga
+          <select id="jiga" onchange="filtrarLista()">
+            {% if jiga == 'T' or jiga == None %}
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+              <option value="N">Não</option>
+            {% elif jiga == 'S' %}
+              <option value="S">Sim</option>
+              <option value="T">Todos</option>
+              <option value="N">Não</option>
+            {% elif jiga == 'N' %}
+              <option value="N">Não</option>
+              <option value="T">Todos</option>
+              <option value="S">Sim</option>
+              {% endif %}
+        </th>
+        <th>#</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for produto in produtos %}
+        <tr>
+          <td>{{produto.cd_produto}}</td>
+          <td>{{produto.ds_produto}}</td>
+          <td>{{produto.controle_seq_prod}}</td>
+          <td>{{produto.in_ativo}}</td>
+          <td>{{produto.in_jiga}}</td>
+          <td><a href="{% url 'produto.update' produto.cd_produto %}" class="icon-link" title="Atualizar Produto">
+                <i class="fa-regular fa-pen-to-square"></i>
+              </a>
+              <a href="{% url 'produto.delete' produto.cd_produto %}" class="icon-link" >
+                <i class="fa-solid fa-delete-left"></i>
+              </a></td>
+        </tr>
+        {% endfor %}
+
+
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+  
+  //Função que envia uma requisição com o valor de status para a url:usuarios
+  function filtrarLista() {
+    var filtro = document.getElementById('controlseqprod').value;
+    var ativo = document.getElementById('ativo').value;
+    var jiga = document.getElementById('jiga').value;
+    var url = '/produto?controlseqprod=' + filtro + '&ativo=' + ativo + '&jiga=' + jiga;
+    window.location.href = url;
+  }
+    function handleClick() {
+        alert('Ícone clicado!');
+        // Ou redirecione para outra página
+        // window.location.href = 'https://www.exemplo.com';
+    }
+
+</script>
+
+{% endblock %}

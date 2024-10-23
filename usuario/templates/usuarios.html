@@ -1,0 +1,119 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+<!-- Aqui inicia a pagina -->
+<div class="container">
+  <h1 style="text-align:center"><b>USUARIOS</b></h1>
+</div>
+
+
+
+<div class="container">
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <a type="button" class="btn btn-secondary" href="{% url 'usuarios.insert' %}">Novo Usuario</a>
+    <a type="button" class="btn btn-secondary" href="{% url 'usuarios' %}">Atualizar</a>
+    <a type="button" class="btn btn-secondary" href="{% url 'home' %}">Voltar</a>
+  </div>
+  <br>
+  <br>
+  <form action="{% url 'usuarios' %}" method="POST"> {% csrf_token %}
+    <input type="text" name="search" placeholder="Pesquise">
+    <input type="submit" value="Pesquise">
+  </form>
+
+  <br>
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th>Matricula</th>
+        <th>Nome</th>
+        <th>Acesso
+          <select id="acesso" onchange="filtrarLista()">
+          <!-- Define qual sera o primeiro da lista-->
+            {% if acesso == '1' or acesso == None %}
+              <option value="1">Todos</option>
+            {% elif acesso == '0' %}
+              <option value="{{cd_acessos.0.cd_acesso}}">{{cd_acessos.0.ds_acesso}}</option>
+            {% elif acesso == '100' %}
+              <option value="{{cd_acessos.1.cd_acesso}}">{{cd_acessos.1.ds_acesso}}</option>
+            {% elif acesso == '500' %}
+              <option value="{{cd_acessos.2.cd_acesso}}">{{cd_acessos.2.ds_acesso}}</option>
+            {% elif acesso == '1000' %}
+              <option value="{{cd_acessos.3.cd_acesso}}">{{cd_acessos.3.ds_acesso}}</option>
+            {% endif %}
+            {% if acesso != '1' and acesso != None %}
+              <option value="1">Todos</option>
+              {% endif %}
+            {% for acess in cd_acessos %}
+              {% if acess.cd_acesso|stringformat:"s" != acesso|stringformat:"s" %}
+                <option value="{{acess.cd_acesso}}">{{acess.ds_acesso}}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </th>
+        <th>Status
+          <select id="status" name="status" onchange="filtrarLista()">
+            {% if status == 'T' or status == None %}
+              <option value="T">Todos</option>
+              <option value="S">Ativos</option>
+              <option value="N">Inativos</option>
+            {% elif status == 'S' %}
+              <option value="S">Ativos</option>
+              <option value="T">Todos</option>
+              <option value="N">Inativos</option>
+            {% elif status == 'N' %}
+              <option value="N">Inativos</option>
+              <option value="S">Ativos</option>
+              <option value="T">Todos</option>
+            {% endif %}
+
+          </select>
+        </th>
+        <th>#</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for usuario in usuarios %}
+        <tr>
+          <td>{{usuario.0}}</td>
+          <td>{{usuario.1}}</td>
+          <td>{{usuario.3}}</td>
+
+          {% if usuario.4 == 'N' %}
+            <td>Inativo</td>
+          {% else %}
+            <td>Ativo</td>
+          {% endif %}
+          
+          <td>
+            <a href="{% url 'usuarios.update' usuario.0 %}" class="icon-link" title="Atualizar Produto">
+              <i class="fa-regular fa-pen-to-square"></i>
+            </a>
+            <a href="{% url 'usuarios.delete' usuario.0 %}" class="icon-link" >
+              <i class="fa-solid fa-delete-left"></i>
+            </a></td>
+        </tr>
+        {% endfor %}
+
+
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+  
+  //Função que envia uma requisição com o valor de status para a url:usuarios
+  function filtrarLista() {
+    var filtro = document.getElementById('status').value;
+    var acesso = document.getElementById('acesso').value;
+    var url = '/usuarios?status=' + filtro + '&acesso=' + acesso;
+    window.location.href = url;
+  }
+
+  </script>
+
+{% endblock %}

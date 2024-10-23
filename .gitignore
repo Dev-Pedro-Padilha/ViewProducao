@@ -1,0 +1,24 @@
+# Ignorar arquivos de sistema
+*.pyc
+__pycache__/
+*.pyo
+
+# Ignorar arquivos do banco de dados local
+*.sqlite3
+
+# Diretórios de arquivos estáticos e de mídia
+staticfiles/
+media/
+
+# Ignorar configurações de ambiente
+.env
+
+# Ignorar pasta do ambiente virtual
+venv/
+
+# Ignorar migrações
+*/migrations/*
+
+# Ignorar arquivos do IDE
+.vscode/
+.idea/

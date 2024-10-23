@@ -1,0 +1,141 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Produção{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles_producao_detalhada.css' %}">
+
+
+<form action="{% url 'producao.detalhe' codigo nserie %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Download Excel" id="downloadExcel" class="btn btn-secondary">
+</form>
+
+<form action="{% url 'producao' %}" method="GET">
+    {% csrf_token %}
+    <div class="btn-group" role="group" aria-label="Basic example">
+        
+        <a type="button" class="btn btn-secondary" id="medidas-btn">Medidas</a>
+        <!-- Popup Modal -->
+        <div class="modal fade" id="medidasModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Medidas</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modal-body-content">
+                        <!-- Os dados serão inseridos aqui -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+</form>
+
+<!-- Botão para rolar para o fim da página -->
+<button id="scrollToBottom" class="btn btn-primary">Atualizar</button>
+<br/><br/>
+{{codigo}}
+<br/>
+{{nserie}}
+<div>
+    <table id="tabela-producao" class="table">
+        <thead>
+            <tr>
+                <th class="nome-col">Nome</th>
+                <th class="data-inicio-col">Data Inicio</th>
+                <th class="data-fim-col">Data Fim</th>
+                <th class="modos-col">Modos</th>
+                <th class="estado-col">Estado</th>
+                <th class="teste-col">Teste</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producao in producoes %}
+                <tr>
+                    <td class="matricula-col">{{producao.2}}</td>
+                    <td class="data-inicio-col">{{producao.3}}</td>
+                    <td class="data-fim-col">{{producao.4}}</td>
+                    <td class="modos-col">
+                        {% if producao.5 == 0 %}
+                            Integração
+                        {% elif producao.5 == 1 %}
+                            Runin
+                        {% elif producao.5 == 2 %}
+                            Liberação
+                        {% endif %}
+                    </td>
+                    <td class="estado-col">
+                        {% if producao.6 == 100 %}
+                            Ok
+                        {% elif producao.6 == 500 %}
+                            Erro
+                        {% endif %}
+                    </td>
+                    <td class="codigo-col">{{producao.7}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById("downloadExcel").addEventListener("click", function() {
+        window.location.href = "{% url 'producao.detalhe' codigo nserie %}?download=1";
+    });
+
+    document.getElementById("scrollToBottom").addEventListener("click", function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    $(document).ready(function() {
+        $('#medidas-btn').click(function() {
+            $('modal-body-content').html('<p>Carregando...');
+            $.ajax({
+                url: "{% url 'producao.medidas' codigo nserie %}",
+                type: 'GET',
+                success: function(data) {
+                    $('#modal-body-content').html('');
+
+                    let table = '<table class="table table-striped table-hover">';
+                    table += '<thead><tr>';
+                    table += '<th>Tipo Medida</th>';
+                    table += '<th>Tipo Local</th>';
+                    table += '<th>Medida</th>';
+                    table += '<th>Máximo</th>';
+                    table += '<th>Mínimo</th>';
+                    table += '<th>Data Medida</th>';
+                    table += '<th>Resultado</th>';
+                    table += '</tr></thead>';
+                    table += '<tbody>';
+
+                    data.forEach(function(item) {
+                        table += '<tr>';
+                        for (let key in item) {
+                            table += '<td>' + item[key] + '</td>';
+                        }
+                        table += '</tr>';
+                    });
+
+                    table += '</tbody></table>';
+
+                    $('#modal-body-content').html(table);
+                    $('#medidasModal').modal('show');
+                },
+                error: function(error) {
+                    $('#modal-body-content').html('<p class="text-danger">Erro ao obter os dados. Tente novamente mais tarde.</p>');
+                    console.error('Erro ao obter os dados:', error);
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

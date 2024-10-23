@@ -1,0 +1,75 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container">
+    <div class="container">
+        <h1 style="text-align:center"><b>ATUALIZAR USUÁRIO</b></h1>
+      </div>
+    <div class="container">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a type="button" class="btn btn-secondary" href="{% url 'usuarios' %}">Voltar</a>
+          </div>
+    </div>
+
+
+    <div>
+        <form action="{% url 'usuarios.update' usuario.matricula %}" method="POST">{% csrf_token %}
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Nome</label><br>
+            <input type="text" name="nome" value="{{usuario.nome}}">
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Matricula</label><br>
+            <input type="number" name="matricula", value="{{usuario.matricula}}">
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Senha</label><br>
+            <input type="password" name="password", value="{{usuario.senha}}">
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Acesso</label><br>
+            <select name="acesso" class="form-control">
+                {% for acess in acessos %}
+                    {% if usuario.cd_acesso.ds_acesso|stringformat:"s" == acess.ds_acesso|stringformat:"s" %}
+                        <option value="{{acess.cd_acesso}}">{{acess.ds_acesso}}</option>
+                    {% endif %}
+                {% endfor %}
+                {% for acess in acessos %}
+                    {% if usuario.cd_acesso.ds_acesso|stringformat:"s" != acess.ds_acesso|stringformat:"s" %}
+                        <option value="{{acess.cd_acesso}}">{{acess.ds_acesso}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Ativo</label><br>
+            <select name="ativo" class="form-control">
+                
+                {% if usuario.in_ativo == 'N' %}
+                    
+                    <option value="N">Não Ativo</option>
+                {% else %}
+                    <option value="S">Ativo</option>
+                {% endif %}
+                {% if usuario.in_ativo == 'N' %}
+                    <option value="S">Ativo</option>
+                {% else %}
+                    <option value="N">Não Ativo</option>
+                {% endif %}
+            </select>
+            <br>
+            <br>
+            <input type="submit" value="Salvar">
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

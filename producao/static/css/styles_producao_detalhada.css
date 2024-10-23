@@ -1,0 +1,77 @@
+
+.table th {
+    padding-left: 10px; /* Adiciona espaço à esquerda */
+    padding-right: 50px; /* Adiciona espaço à direita */
+    border-collapse: collapse;
+    background-color: #4CAF50;; /* Cor azul para os títulos */
+    color: white;
+}
+
+th, td {
+    border: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Cor para linhas pares */
+}
+
+tr:hover {
+    background-color: #ddd; /* Cor de fundo ao passar o mouse */
+}
+
+tr.clickable-row {
+    cursor: pointer;
+}
+
+.nome-col {
+    width: 22%;  /* Ajuste da largura */
+}
+
+.data-inicio-col {
+    width: 17%;
+}
+
+.data-fim-col {
+    width: 17%;
+}
+
+.modos-col {
+    width: 7%;
+}
+
+.estado-col {
+    width: 5%;
+}
+
+.teste-col {
+    width: 19%;
+}
+
+.modal-dialog {
+    max-width: 50%; /* Define a largura máxima do modal */
+    width: auto; /* Ajusta a largura automaticamente */
+}
+
+.modal-body {
+    max-height: 80vh; /* Define a altura máxima do corpo do modal */
+    overflow-y: auto; /* Adiciona barra de rolagem vertical se necessário */
+}
+
+.table th, .table td {
+    padding: 5px; /* Ajusta o padding das células da tabela */
+    white-space: nowrap; /* Evita quebras de linha automáticas */
+}
+
+.table {
+    width: 100%; /* Faz a tabela ocupar toda a largura disponível */
+}
+
+.modal-header {
+    background-color: #4CAF50; /* Cor de fundo do cabeçalho do modal */
+    color: white; /* Cor do texto do cabeçalho */
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Posiciona o botão de fechar à direita */
+}

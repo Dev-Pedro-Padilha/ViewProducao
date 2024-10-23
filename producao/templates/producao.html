@@ -1,0 +1,87 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Produção{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles_producao.css' %}">
+<div class="container">
+    <!---{{producao}}-->
+    <div class="liberadas">
+        <h1>Liberadas</h1>
+        <p>{{liberadas}}</p>
+    </div>
+
+    <form action="{% url 'producao' %}" method="GET">{% csrf_token %}
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <form action="{% url 'producao' %}" method="POST">{% csrf_token %}
+                <input type="submit" value="Salvar" id="downloadExcel" class="btn btn-secondary">
+            </form>
+            <input type="submit" class="btn btn-secondary" value="Atualizar">
+            <a type="button" class="btn btn-secondary" href="{% url 'home' %}">Voltar</a>
+            <br>
+        </div>
+        <br>
+        <form action="{% url 'producao' %}" method="POST"> {% csrf_token %}
+            <input type="text" name="search" placeholder="Digite o Numero de Série">
+            <input type="submit" value="Pesquise">
+        </form>
+        <label for="data_selecionada_inicio">Data Inicio</label>
+        <br>
+        <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required>
+        <br>
+        <label for="data_selecionada_fim">Data Fim</label>
+        <br>
+        <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required>
+        <br>
+        
+    </form>
+    
+    
+    <br><br><br>
+
+    <div>
+        <table id="tabela-producao">
+            <tr class="tr_titulo">
+                <th class="codigo-col">Código</th>
+                <th class="numero-serie-col">Série</th>
+                <th class="data-inicio-col">Data Início</th>
+                <th class="data-fim-col">Data Fim</th>
+                <th class="etapa-col">Etapa</th>
+                <th class="integracao-col">Integração</th>
+                <th class="runin-col">Runin</th>
+                <th class="liberacao-col">Liberação</th>
+            </tr>
+            
+            {% for prod in producao %}
+                <tr class="clickable-row"  data-href="{% url 'producao.detalhe' prod.1 prod.2 %}">
+                    <td class="codigo-col">{{prod.1}}</td>
+                    <td class="numero-serie-col">{{prod.2}}</td>
+                    <td class="data-inicio-col">{{prod.3}}</td>
+                    <td class="data-fim-col">{{prod.4}}</td>
+                    <td class="etapa-col">
+                        {% if prod.5 == 0 %}
+                            <p style="color:red">Integração</p>
+                        {% elif prod.5 == 1 %}
+                            <p style="color:orange">Runin</p>
+                        {% elif prod.5 == 3 %}
+                            <p style="color:blue">Liberação</p>
+                        {% elif prod.5 == 7 %}
+                            <p style="color:green">Finalizado</p>
+                        {% endif %}
+                    </td>
+                    <td class="integracao-col">{{prod.6}}</td>
+                    <td class="runin-col">{{prod.7}}</td>
+                    <td class="liberacao-col">{{prod.8}}</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+</div>
+
+
+<script src="{% static 'js/download.js' %}"></script>
+
+{% endblock %}

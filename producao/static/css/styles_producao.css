@@ -1,0 +1,72 @@
+
+.table th {
+    padding-left: 10px; /* Adiciona espaço à esquerda */
+    padding-right: 50px; /* Adiciona espaço à direita */
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ddd;
+}
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+tr:hover {
+    background-color: #ddd;
+}
+tr.clickable-row {
+    cursor: pointer;
+}
+tr:first-child {
+    background-color: rgb(51, 56, 195); /* Change this to your desired color */
+}
+.codigo-col {
+    width: 8%;  /* Adjust the percentage as needed */
+}
+.numero-serie-col {
+    width: 5%;
+}
+.data-inicio-col {
+    width: 15%;
+}
+.data-fim-col {
+    width: 15%;
+}
+.etapa-col {
+    width: 5%;
+}
+.integracao-col {
+    width: 15%;
+}
+.runin-col {
+    width: 15%;
+}
+.liberacao-col {
+    width: 10%;
+}
+.liberadas{
+    
+    width:10%;
+    float: right;
+}
+.liberadas h1{
+    color: #4CAF50;
+    font-family: 'sans-serif';
+    font-size: 24px; /* ou 1.5em, ou 150% */
+    font-style: bold;
+}
+.liberadas p{
+    color: #4CAF50;
+    font-size: 100px;
+    font-style: bold;
+    font-family: "Lucida Console", "Courier New", monospace;
+    animation: piscar 1s infinite; /* Animação que se repete indefinidamente */
+}
+@keyframes piscar {
+    80%, 100% { opacity: 1; } /* Aparecendo */
+    50% { opacity: 0; } /* Desaparecendo no meio */
+}

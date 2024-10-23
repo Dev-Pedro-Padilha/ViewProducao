@@ -1,0 +1,81 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Produto{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container">
+    <div class="container">
+        <h1 style="text-align:center"><b>ATUALIZAR PRODUTO</b></h1>
+      </div>
+    <div class="container">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a type="button" class="btn btn-secondary" href="{% url 'produto' %}">Voltar</a>
+          </div>
+    </div>
+
+    <div>
+        <form action="" method="POST">{% csrf_token %}
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Código</label><br>
+            <input type="text" name="codigo" value="{{produto.cd_produto}}">
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Descrição</label><br>
+            <input type="text" name="descricao", value="{{produto.ds_produto}}">
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Controle Sequência de Produção</label><br>
+            {% if produto.controle_seq_prod == 'S' %}
+                <input type="radio" name="contseqprod" value="S" checked>Sim
+            {% else %}
+                <input type="radio" name="contseqprod" value="S" >Sim
+            {% endif %}
+            
+            {% if produto.controle_seq_prod == 'N' %}
+                <input type="radio" name="contseqprod" value="N" checked>Não
+            {% else %}
+                <input type="radio" name="contseqprod" value="N" >Não
+            {% endif %}            
+            <br>
+            <br>
+
+            <label for="exampleInputPassword1">Ativo</label><br>
+            {% if produto.in_ativo == 'S' %}
+                <input type="radio" name="ativo" value="S" checked>Sim
+            {% else %}
+                <input type="radio" name="ativo" value="S" >Sim
+            {% endif %}
+            
+            {% if produto.in_ativo == 'N' %}
+                <input type="radio" name="ativo" value="N" checked>Não
+            {% else %}
+                <input type="radio" name="ativo" value="N" >Não
+            {% endif %}            
+            <br>
+            <br>
+            <label for="exampleInputPassword1">Jiga</label><br>
+            {% if produto.in_jiga == 'S' %}
+            <input type="radio" name="jiga" value="S" checked>Sim
+            {% else %}
+                <input type="radio" name="jiga" value="S" >Sim
+            {% endif %}
+            
+            {% if produto.in_jiga == 'N' %}
+                <input type="radio" name="jiga" value="N" checked>Não
+            {% else %}
+                <input type="radio" name="jiga" value="N" >Não
+            {% endif %}
+            <br>
+            <br>
+            <input type="submit" value="Salvar">
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}
