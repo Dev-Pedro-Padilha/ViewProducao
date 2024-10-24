@@ -4,6 +4,7 @@
 {% block title %}Usuários{% endblock %}
 
 {% block content %}
+{% load static %}
 <!-- Aqui inicia a pagina -->
 <div class="container">
   <h1 style="text-align:center"><b>USUARIOS</b></h1>
@@ -103,17 +104,7 @@
   </table>
 </div>
 
+<script src="{% static 'js/getstatus.js' %}"></script>
 
-<script>
-  
-  //Função que envia uma requisição com o valor de status para a url:usuarios
-  function filtrarLista() {
-    var filtro = document.getElementById('status').value;
-    var acesso = document.getElementById('acesso').value;
-    var url = '/usuarios?status=' + filtro + '&acesso=' + acesso;
-    window.location.href = url;
-  }
-
-  </script>
 
 {% endblock %}

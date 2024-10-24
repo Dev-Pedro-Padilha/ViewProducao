@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-#.models = arquivo onde estão as tabelas do bando - Usuarios = nome da tabela do banco
-from main.models import Usuarios, Acesso
+from main.models import Usuarios, Acesso        #.models = arquivo onde estão as tabelas do bando - Usuarios = nome da tabela do banco
 
 #Pagina Inicial do sistema
 def home(request):
@@ -41,6 +40,7 @@ def usuarios_list(request):
         search = request.POST.get('search')
         usuarios=Usuarios.objects.filter(matricula__exact=search)
         status = 'S'
+        
         # Lista de tuplas (matricula, nome, senha, cd_acesso, in_ativo, ds_acesso)
         usuarios_com_acesso = [(usuario.matricula, usuario.nome, usuario.senha, usuario.cd_acesso.ds_acesso, usuario.in_ativo) for usuario in usuarios]
         return render(request, 'usuarios.html', {'usuarios': usuarios_com_acesso, 'status':status})

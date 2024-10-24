@@ -6,12 +6,27 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/styles_producao.css' %}">
+
 <div class="container">
-    <!---{{producao}}-->
     <div class="liberadas">
         <h1>Liberadas</h1>
         <p>{{liberadas}}</p>
     </div>
+    <div class="emliberacao">
+        <h2>Em Liberação</h2>
+        <p>{{liberacao}}</p>
+    </div>
+    <div class="emrunin">
+        <h2>Em Runin</h2>
+        <p>{{runin}}</p>
+    </div>
+    <div class="emintegracao">
+        <h2>Em Integração</h2>
+        <p>{{integracao}}</p>
+    </div>
+    
+    
+       
 
     <form action="{% url 'producao' %}" method="GET">{% csrf_token %}
         <div class="btn-group" role="group" aria-label="Basic example">
@@ -37,6 +52,7 @@
         <br>
         
     </form>
+    
     
     
     <br><br><br>

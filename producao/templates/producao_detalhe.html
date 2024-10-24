@@ -7,26 +7,55 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/styles_producao_detalhada.css' %}">
 
+<style>
+    /* Estilos simples para o pop-up */
+    #popup {
+        display: none;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid #ccc;
+        background: white;
+        padding: 20px;
+        z-index: 1000;
+    }
+    #overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+</style>
 
-<form action="{% url 'producao.detalhe' codigo nserie %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Download Excel" id="downloadExcel" class="btn btn-secondary">
-</form>
+<br/><br/>
+<div style="text-align: center;">
+    <h1>{{codigo}} - {{nserie}}</h1></div>
+<br/>
 
-<form action="{% url 'producao' %}" method="GET">
-    {% csrf_token %}
+<div class="btn-group" role="group" aria-label="Grupo de Ações">
+    <!--Botão para gerar aquivo excel-->
+    <form action="{% url 'producao.detalhe' codigo nserie %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Download" id="downloadExcel" class="btn btn-secondary">
+    </form>
+
+    <!--Botão para gerar dados das medidas-->
     <div class="btn-group" role="group" aria-label="Basic example">
-        
-        <a type="button" class="btn btn-secondary" id="medidas-btn">Medidas</a>
-        <!-- Popup Modal -->
+        <a type="button" class="btn btn-secondary" id="popup_medidas">Medidas</a>
+        <!-- Popup Medidas -->
         <div class="modal fade" id="medidasModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Medidas</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" ddata-bs-toggle="modal" data-bs-target="#medidasModal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="modal-body-content">
+                    <div class="modal-body" id="modal-body-medidas">
                         <!-- Os dados serão inseridos aqui -->
                     </div>
                     <div class="modal-footer">
@@ -37,14 +66,60 @@
         </div>
         <br>
     </div>
-</form>
 
-<!-- Botão para rolar para o fim da página -->
-<button id="scrollToBottom" class="btn btn-primary">Atualizar</button>
+    <!-- Botão para rolar para o fim da página -->
+    <button id="scrollToBottom" class="btn btn-primary">Atualizar</button>
+
+    <!--Botão para gerar dados dos perificos vinculados ao produto-->
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a type="button" class="btn btn-secondary" id="popup_perifericos">Periféricos</a>
+        <!-- Popup Periféricos -->
+        <div class="modal fade" id="perifericosModal" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel2">Periféricos</h5>
+                        <button type="button" class="btn-close" ddata-bs-toggle="modal" data-bs-target="#perifericosModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modal-body-perifericos">
+                        <!-- Os dados serão inseridos aqui -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <!--Botão para printar os dados de defeitos vinculados ao produto-->
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a type="button" class="btn btn-secondary" id="popup_defeitos">Defeitos</a>
+        <!-- Popup Periféricos -->
+        <div class="modal fade" id="defeitosModal" tabindex="-1" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel3">Defeitos</h5>
+                        <button type="button" class="btn-close" ddata-bs-toggle="modal" data-bs-target="#defeitosModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modal-body-defeitos">
+                        <!-- Os dados serão inseridos aqui -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+
+
+</div>
 <br/><br/>
-{{codigo}}
-<br/>
-{{nserie}}
+<!-- Tabela Produção -->
 <div>
     <table id="tabela-producao" class="table">
         <thead>
@@ -86,56 +161,136 @@
     </table>
 </div>
 
-<script>
-    document.getElementById("downloadExcel").addEventListener("click", function() {
-        window.location.href = "{% url 'producao.detalhe' codigo nserie %}?download=1";
-    });
-
-    document.getElementById("scrollToBottom").addEventListener("click", function() {
-        window.scrollTo(0, document.body.scrollHeight);
-    });
-
+<script type="text/javascript">
+    var urlDetalhe = "{% url 'producao.detalhe' codigo nserie %}?download=1";
+    
     $(document).ready(function() {
-        $('#medidas-btn').click(function() {
-            $('modal-body-content').html('<p>Carregando...');
-            $.ajax({
-                url: "{% url 'producao.medidas' codigo nserie %}",
-                type: 'GET',
-                success: function(data) {
-                    $('#modal-body-content').html('');
+    $('#popup_perifericos').click(function() {
+        $('#modal-body-perifericos').html('<p>Carregando...');
+        $.ajax({
+            url: "{% url 'producao.perifericos' codigo nserie %}",  // Substitua pela URL correta da sua view
+            method: 'GET',
+            success: function(data) {
+                
 
-                    let table = '<table class="table table-striped table-hover">';
-                    table += '<thead><tr>';
-                    table += '<th>Tipo Medida</th>';
-                    table += '<th>Tipo Local</th>';
-                    table += '<th>Medida</th>';
-                    table += '<th>Máximo</th>';
-                    table += '<th>Mínimo</th>';
-                    table += '<th>Data Medida</th>';
-                    table += '<th>Resultado</th>';
-                    table += '</tr></thead>';
-                    table += '<tbody>';
+                let table = '<table class="table table-striped table-hover">';
+                table += '<thead><tr>';
+                table += '<th>Descrição</th>';
+                table += '<th>Codigo</th>';
+                table += '<th>Série</th>';
+                table += '</tr></thead>';
+                table += '<tbody>';
 
-                    data.forEach(function(item) {
-                        table += '<tr>';
-                        for (let key in item) {
-                            table += '<td>' + item[key] + '</td>';
-                        }
-                        table += '</tr>';
-                    });
+                data.forEach(function(item) {
+                    table += '<tr>';
+                    for (let key in item) {
+                        table += '<td>' + item[key] + '</td>';
+                    }
+                    table += '</tr>';
+                });
 
-                    table += '</tbody></table>';
+                table += '</tbody></table>';
 
-                    $('#modal-body-content').html(table);
-                    $('#medidasModal').modal('show');
-                },
-                error: function(error) {
-                    $('#modal-body-content').html('<p class="text-danger">Erro ao obter os dados. Tente novamente mais tarde.</p>');
-                    console.error('Erro ao obter os dados:', error);
-                }
-            });
+                $('#modal-body-perifericos').html(table);
+                $('#perifericosModal').modal('show');
+            },
+            error: function(error) {
+                $('#modal-body-perifericos').html('<p class="text-danger">Erro ao obter os dados. Tente novamente mais tarde.</p>');
+                console.error('Erro ao obter os dados:', error);
+            }
         });
     });
+
+    $('#closePopup').click(function() {
+        $('#overlay').hide();
+        $('#popup').hide();
+    });
+});
+
+
+$(document).ready(function() {
+    $('#popup_medidas').click(function() {
+        $('#modal-body-medidas').html('<p>Carregando...');
+        $.ajax({
+            url: "{% url 'producao.medidas' codigo nserie %}",
+            type: 'GET',
+            success: function(data) {
+
+                let table = '<table class="table table-striped table-hover">';
+                table += '<thead><tr>';
+                table += '<th>Tipo Medida</th>';
+                table += '<th>Tipo Local</th>';
+                table += '<th>Medida</th>';
+                table += '<th>Máximo</th>';
+                table += '<th>Mínimo</th>';
+                table += '<th>Data Medida</th>';
+                table += '<th>Resultado</th>';
+                table += '</tr></thead>';
+                table += '<tbody>';
+
+                data.forEach(function(item) {
+                    table += '<tr>';
+                    for (let key in item) {
+                        table += '<td>' + item[key] + '</td>';
+                    }
+                    table += '</tr>';
+                });
+
+                table += '</tbody></table>';
+
+                $('#modal-body-medidas').html(table);
+                $('#medidasModal').modal('show');
+            },
+            error: function(error) {
+                $('#modal-body-medidas').html('<p class="text-danger">Erro ao obter os dados. Tente novamente mais tarde.</p>');
+                console.error('Erro ao obter os dados:', error);
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#popup_defeitos').click(function() {
+        $('#modal-body-defeitos').html('<p>Carregando...');
+        $.ajax({
+            url: "{% url 'producao.defeitos' codigo nserie %}",
+            type: 'GET',
+            success: function(data) {
+
+                let table = '<table class="table table-striped table-hover">';
+                table += '<thead><tr>';
+                table += '<th>Etapa</th>';
+                table += '<th>Teste</th>';
+                table += '<th>Local Defeito</th>';
+                table += '<th>Defeito</th>';
+                table += '<th>Observação</th>';
+                table += '</tr></thead>';
+                table += '<tbody>';
+
+                data.forEach(function(item) {
+                    table += '<tr>';
+                    for (let key in item) {
+                        table += '<td>' + item[key] + '</td>';
+                    }
+                    table += '</tr>';
+                });
+
+                table += '</tbody></table>';
+
+                $('#modal-body-medidas').html(table);
+                $('#medidasModal').modal('show');
+            },
+            error: function(error) {
+                $('#modal-body-medidas').html('<p class="text-danger">Erro ao obter os dados. Tente novamente mais tarde.</p>');
+                console.error('Erro ao obter os dados:', error);
+            }
+        });
+    });
+});
+
 </script>
+
+<!-- Incluindo o arquivo JS externo -->
+<script src="{% static 'js/prod_detail_custom.js' %}"></script>
 
 {% endblock %}

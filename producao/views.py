@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from main.models import Producao, Resultados, Usuarios, Testes, Medidas
+from main.models import Producao, Resultados, Usuarios, Testes, Medidas, DefeitoResultados2, LocalDefeito, Defeito, Testes, ResultadosDadosEntrada, Produto
 
 from django.db.models import F, Window
 from django.db.models.functions import RowNumber
@@ -136,6 +136,9 @@ def producao_list(request):
     #Lista zerada para enviar ao front
     lista_resultados = []
     
+    integracao = 0
+    runin = 0
+    liberacao = 0
     liberadas = 0
     
     queryset = sdp(inicio_data_hora, fim_data_hora)    #Chama função que retorna dados SDP
@@ -188,6 +191,17 @@ def producao_list(request):
             ########################################################################################################
             
             resultado = (producao.indice, magnus_produto, producao.serie, producao.dataini, producao.datafim, producao.modos, nome_usuario, nome_usuario_runin, nome_usuario_liberacao)
+            
+            #Conta quantidade de Maquinas em Integração
+            if producao.modos == 0:
+                integracao += 1
+            #Conta quantidade de Maquinas em Runin
+            if producao.modos == 1:
+                runin += 1
+            #Conta quantidade de Maquinas em Liberação
+            if producao.modos == 3:
+                liberacao += 1
+            #Conta quantidade de Maquinas Liberadas
             if producao.modos == 7:
                 liberadas += 1
             
@@ -210,7 +224,7 @@ def producao_list(request):
     if request.method == 'GET':
         #return HttpResponse("Producao")
         print(liberadas)
-        return render(request, 'producao.html',{'producao':lista_resultados, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'liberadas':liberadas})
+        return render(request, 'producao.html',{'producao':lista_resultados, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'integracao':integracao, 'runin':runin, 'liberacao':liberacao, 'liberadas':liberadas})
     
     if request.method == 'POST':
         #Tentativa de exportar a lista para excel
@@ -347,7 +361,75 @@ def producao_medidas(request, codigo, nserie):
     #medidas_list = list(medidas.values('id_tp_medida', 'id_tp_local', 'medida', 'max', 'min', 'dt_medida', 'resultado'))
     return JsonResponse(lista_medidas, safe=False)
     
+def perifericos_cadastrados(request, codigo, nserie):
+    perifericos = ResultadosDadosEntrada.objects.filter(magnus=codigo, serie_atm=nserie)
+    lista = []
+    for periferico in perifericos:
+        codigo_periferico = periferico.cd_produto
+        #print(codigo_periferico)
+        produto = Produto.objects.filter(cd_produto=codigo_periferico).values('ds_produto').first()
+        if produto:
+            descricaoProduto = produto['ds_produto']
+            #print(descricaoProduto)
+        serie_periferico = periferico.serie
+        #print(serie_periferico)
+        data = (descricaoProduto, codigo_periferico, serie_periferico)
+        #print(data)
+        lista.append(data)
+    #print(lista)
+    
+    return JsonResponse(lista, safe=False)
 
+def defeitos(request, codigo, nserie):
+    lista=[]
+    indices = Resultados.objects.filter(magnus=codigo, serie=nserie).values('indice')
+    #print(indices)
+    for indice in indices:
+        #print("indice: " + str(indice['indice']))
+        defeitos = DefeitoResultados2.objects.filter(indice=indice['indice'])
+        for defeito in defeitos:
+            #print(defeito)
+            #########################################################################################################################
+            ##Descrição do Local Defeito
+            codigoLocalDefeito = defeito.cd_local_defeito.cd_local_defeito
+            #print(codigoLocalDefeito)
+            localDefeito = LocalDefeito.objects.filter(cd_local_defeito=codigoLocalDefeito).values('ds_local_defeito')
+            descricaoLocalDefeito = localDefeito[0]['ds_local_defeito']
+            #print(descricaoLocalDefeito)
+            #########################################################################################################################
+            ##Descrição do Tipo Defeito
+            codigoDefeito = defeito.cd_defeito.cd_defeito
+            #print(codigoDefeito)
+            tipoDefeito = Defeito.objects.filter(cd_defeito=codigoDefeito).values('ds_defeito')
+            descricaoTipoDefeito = tipoDefeito[0]['ds_defeito']
+            #print(descricaoTipoDefeito)
+            #########################################################################################################################
+            ##Descrição Teste defeito
+            codigoTeste = defeito.codigo
+            #print(codigoTeste)
+            teste = Testes.objects.filter(codigo=codigoTeste).values('descricao')
+            descricaoTeste = teste[0]['descricao']
+            #print(descricaoTeste)
+            #########################################################################################################################
+            ##Observação Defeito
+            observacaoDefeito = defeito.sc_defeito
+            #print(observacaoDefeito)
+            #########################################################################################################################
+            ##Etapa Defeito
+            etapaDefeito = defeito.modo_defeito
+            if(etapaDefeito == 0):
+                descricaoEtapaDefeito = "Integração"
+            elif(etapaDefeito == 1):
+                descricaoEtapaDefeito = "Runin"
+            elif(etapaDefeito == 2):
+                descricaoEtapaDefeito = "Liberação"
+            #print(descricaoEtapaDefeito)
+
+            data = (descricaoEtapaDefeito, descricaoTeste, descricaoLocalDefeito, descricaoTipoDefeito, observacaoDefeito)
+            #print(data)
+            lista.append(data)
+    #return redirect()
+    return JsonResponse(lista, safe=False)
 
 def redirect():
     return HttpResponseRedirect(reverse('producao'))
