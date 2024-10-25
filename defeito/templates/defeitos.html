@@ -1,0 +1,124 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Defeitos{% endblock %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles_producao.css' %}">
+
+
+<div class="container">
+    <div class="row">
+        <!-- Pesquisa por Código -->
+        <div class="col-auto">
+            <form action="{% url 'defeito' %}" method="POST" class="form-inline"> {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="searchCodigo" class="form-control" placeholder="Digite o Código">
+                    <input type="submit" value="Pesquise" class="btn btn-primary ml-2">
+                </div>
+            </form>
+        </div>
+
+        <!-- Pesquisa por Data -->
+        <div class="col-auto">
+            <form action="{% url 'defeito' %}" method="GET" class="form-inline"> {% csrf_token %}
+                <div class="form-group">
+                    <label for="data_selecionada_inicio" class="mr-2">Data Início</label>
+                    <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required class="form-control mr-3">
+                </div>
+                <div class="form-group">
+                    <label for="data_selecionada_fim" class="mr-2">Data Fim</label>
+                    <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required class="form-control mr-3">
+                </div>
+                <input type="submit" class="btn btn-secondary" value="Atualizar">
+            </form>
+        </div>
+
+        <!-- Botão Salvar -->
+        <div class="col-auto">
+            <form action="{% url 'defeito' %}" method="POST"> {% csrf_token %}
+                <input type="submit" value="Salvar" id="downloadExcel" class="btn btn-success">
+            </form>
+        </div>
+    </div>
+</div>
+<br><br><br>
+<!--Chama script que monta o grafico-->
+<canvas id="defeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
+<br><br><br>
+<div class="container">
+    <table id="tabela-defeitos">
+        <tr class="tr_titulo">
+            <th class="codigo-col">Código</th>
+            <th class="numero-serie-col">Série</th>
+            <th class="etapa-col">Etapa</th>
+            <th class="teste-col">Teste</th>
+            <th class="local-defeito-col">Local Defeito</th>
+            <th class="defeito-col">Defeito</th>
+            <th class="observacao-col">Observação</th>
+        </tr>
+        
+        {% for dat in data %}
+            <tr class="clickable-row">
+                <td class="codigo-col">{{dat.0}}</td>
+                <td class="numero-serie-col">{{dat.1}}</td>
+                <td class="etapa-col">{{dat.2}}</td>
+                <td class="teste-col">{{dat.3}}</td>
+                <td class="local-defeito-col">{{dat.4}}</td>
+                <td class="defeito">{{dat.5}}</td>
+                <td class="observacao-col">{{dat.6}}</td>
+            </tr>
+        {% endfor %}
+
+    </table>
+</div>
+
+
+
+
+<script>
+    // Define os dados usando JSON válido
+    const defeitosData = JSON.parse('{{ datajson|escapejs }}');
+    console.log("Dados de defeitos:", defeitosData);  // Verifica os dados no console
+
+    // Transformar dados para o gráfico
+    const labels = defeitosData.map(item => item[4]);  // Local do Defeito
+    const defeitos = defeitosData.map(item => item[5]);  // Tipo de Defeito
+
+    // Contar a frequência de cada defeito
+    const defeitoFrequencia = {};
+    defeitos.forEach(defeito => {
+        defeitoFrequencia[defeito] = (defeitoFrequencia[defeito] || 0) + 1;
+    });
+
+    // Dados para o gráfico
+    const chartData = {
+        labels: Object.keys(defeitoFrequencia),
+        datasets: [{
+            label: 'Frequência de Defeitos',
+            data: Object.values(defeitoFrequencia),
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    // Configuração do gráfico com Chart.js
+    const ctx = document.getElementById('defeitosChart').getContext('2d');
+    const defeitosChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+<script src="{% static 'js/download.js' %}"></script>
+
+{% endblock %}
