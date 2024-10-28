@@ -115,29 +115,39 @@
         </div>
         <br>
     </div>
-
-
 </div>
 <br/><br/>
+
+<div>
+    <h1><p>Tempo Integração: {{tempoIntegracao}}</p></h1>
+    <h1><p>Tempo Runin: {{tempoRunin}}</p></h1>
+    <h1><p>Tempo Liberação: {{tempoLiberacao}}</p></h1>
+</div>
 <!-- Tabela Produção -->
 <div>
     <table id="tabela-producao" class="table">
         <thead>
             <tr>
-                <th class="nome-col">Nome</th>
+                <th class="teste-col">Teste</th>
+                <th class="estado-col">Estado</th>
+                <th class="modos-col">Modos</th>
                 <th class="data-inicio-col">Data Inicio</th>
                 <th class="data-fim-col">Data Fim</th>
-                <th class="modos-col">Modos</th>
-                <th class="estado-col">Estado</th>
-                <th class="teste-col">Teste</th>
+                <th class="duracao-col">Duração</th>
+                <th class="nome-col">Nome</th>
             </tr>
         </thead>
         <tbody>
             {% for producao in producoes %}
                 <tr>
-                    <td class="matricula-col">{{producao.2}}</td>
-                    <td class="data-inicio-col">{{producao.3}}</td>
-                    <td class="data-fim-col">{{producao.4}}</td>
+                    <td class="codigo-col">{{producao.7}}</td>
+                    <td class="estado-col">
+                        {% if producao.6 == 100 %}
+                            Ok
+                        {% elif producao.6 == 500 %}
+                            Erro
+                        {% endif %}
+                    </td>
                     <td class="modos-col">
                         {% if producao.5 == 0 %}
                             Integração
@@ -147,14 +157,10 @@
                             Liberação
                         {% endif %}
                     </td>
-                    <td class="estado-col">
-                        {% if producao.6 == 100 %}
-                            Ok
-                        {% elif producao.6 == 500 %}
-                            Erro
-                        {% endif %}
-                    </td>
-                    <td class="codigo-col">{{producao.7}}</td>
+                    <td class="data-inicio-col">{{producao.3}}</td>
+                    <td class="data-fim-col">{{producao.4}}</td>
+                    <td class="duracao-col">{{producao.8}}</td>
+                    <td class="matricula-col">{{producao.2}}</td>
                 </tr>
             {% endfor %}
         </tbody>

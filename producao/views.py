@@ -4,14 +4,92 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from main.models import Producao, Resultados, Usuarios, Testes, Medidas, DefeitoResultados2, LocalDefeito, Defeito, Testes, ResultadosDadosEntrada, Produto
 
+from datetime import datetime, timedelta
+
 from django.db.models import F, Window
 from django.db.models.functions import RowNumber
 
-from datetime import datetime
+from datetime import datetime, timezone
+from django.utils.timezone import localtime
 import pandas as pd
 import tempfile
 import pytz
 from django.http import JsonResponse
+
+def producao_list(request):
+    
+    #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual
+    data_selecionada_inicio = request.GET.get('data_selecionada_inicio')
+    
+    if not data_selecionada_inicio:
+        data_selecionada_inicio = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
+        
+    inicio_data_hora = datetime.strptime(data_selecionada_inicio, '%Y-%m-%d')
+    print(inicio_data_hora)
+    
+    data_selecionada_fim = request.GET.get('data_selecionada_fim')
+    
+    if not data_selecionada_fim:
+        data_selecionada_fim = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
+    
+    fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
+    fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
+    print(fim_data_hora)
+    
+    #Lista zerada para enviar ao front
+    lista_resultados = []
+    
+    integracao = 0
+    runin = 0
+    liberacao = 0
+    liberadas = 0
+    
+    #Chama função que retorna dados SDP
+    dadosSdp = sdp(inicio_data_hora, fim_data_hora)
+    
+    #Retorna detalhes da lista dadosSdp
+    lista_resultados, integracao, runin, liberacao, liberadas = getDetails(dadosSdp, integracao, runin, liberacao, liberadas, fim_data_hora)
+        
+    if request.method == 'GET':
+        #return HttpResponse("Producao")
+        print(liberadas)
+        return render(request, 'producao.html',{'producao':lista_resultados, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'integracao':integracao, 'runin':runin, 'liberacao':liberacao, 'liberadas':liberadas})
+    
+    if request.method == 'POST':
+        #Tentativa de exportar a lista para excel
+        pesquisa = request.POST.get('search')
+        print(pesquisa)
+        
+        
+        if pesquisa != None:
+            atm = search_atm(pesquisa)
+            print(atm)
+            return render(request, 'producao_search.html',{'producao':atm, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'liberadas':liberadas})
+        else:
+        
+            column_names = ['indice', 'codigo', 'serie', 'data_inicio', 'data_fim', 'etapa', 'integracao', 'runin', 'liberacao']
+            
+            # Criar um DataFrame a partir da lista de dados
+            df = pd.DataFrame(lista_resultados, columns=column_names)
+            # Imprimir os nomes das colunas presentes no DataFrame
+            print(df.columns)
+
+            # Antes de exportar, remova as informações de fuso horário dos datetimes
+            df['data_inicio'] = df['data_inicio'].dt.tz_localize(None)
+            df['data_fim'] = df['data_fim'].dt.tz_localize(None)
+            
+            # Especificar o caminho do arquivo Excel de saída
+            caminho_arquivo_excel = 'dados.xlsx'
+
+            # Exportar os dados para o arquivo Excel
+            df.to_excel(caminho_arquivo_excel, index=False)
+            
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+                df.to_excel(tmp.name, index=False)
+                tmp.seek(0)
+                response = HttpResponse(tmp.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = 'attachment; filename="producao.xlsx"'
+                return response
 
 def sdp(inicio_data_hora, fim_data_hora):
 
@@ -112,40 +190,14 @@ def search_atm(ns):
     
     return resultado
 
-# Create your views here.
-def producao_list(request):
-    
-    #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual
-    data_selecionada_inicio = request.GET.get('data_selecionada_inicio')
-    
-    if not data_selecionada_inicio:
-        data_selecionada_inicio = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
-        
-    inicio_data_hora = datetime.strptime(data_selecionada_inicio, '%Y-%m-%d')
-    print(inicio_data_hora)
-    
-    data_selecionada_fim = request.GET.get('data_selecionada_fim')
-    
-    if not data_selecionada_fim:
-        data_selecionada_fim = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
-    
-    fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
-    fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
-    print(fim_data_hora)
-    
-    #Lista zerada para enviar ao front
+def getDetails(dadosSdp, integracao, runin, liberacao, liberadas, fim_data_hora):
     lista_resultados = []
+    # Defina 5 minutos como um timedelta
+    cinco_minutos = timedelta(minutes=5)
     
-    integracao = 0
-    runin = 0
-    liberacao = 0
-    liberadas = 0
-    
-    queryset = sdp(inicio_data_hora, fim_data_hora)    #Chama função que retorna dados SDP
-    #print(queryset)
-    for qs in queryset:
-        codigo = qs['cd_produto']
-        ns = qs['nro_serie']
+    for dados in dadosSdp:
+        codigo = dados['cd_produto']
+        ns = dados['nro_serie']
 
         #Chama função que traz os detalhes da producao para cada numero de serie
         producao_detalhada = detalha_sdp(codigo, ns)
@@ -189,8 +241,32 @@ def producao_list(request):
             elif producao.matricula_liberacao == None:
                 nome_usuario_liberacao = None
             ########################################################################################################
+            status = -1
             
-            resultado = (producao.indice, magnus_produto, producao.serie, producao.dataini, producao.datafim, producao.modos, nome_usuario, nome_usuario_runin, nome_usuario_liberacao)
+            if(producao.modos == 7):
+                status = 3
+            else:
+                calcData = Producao.objects.filter(cd_produto=magnus_produto, nro_serie=producao.serie)
+                print(magnus_produto)
+                print(producao.serie)
+                calculo = calcData.last()
+                print(calculo)
+                dataStart = calculo.dt_ini_prod
+                print(dataStart)
+                dataEnd = calculo.dt_fim_prod
+                print(dataEnd)
+                dataAtual = datetime.now()
+                print(dataAtual)
+                diferenca = dataAtual - dataEnd
+                print(diferenca)
+                if(calculo.estado == 500 and diferenca > cinco_minutos):
+                    status = 2
+                elif(calculo.estado == 100 and diferenca > cinco_minutos):
+                    status = 1
+                elif(diferenca < cinco_minutos):
+                    status = 0
+            print(status)
+            resultado = (producao.indice, magnus_produto, producao.serie, producao.dataini, producao.datafim, producao.modos, nome_usuario, nome_usuario_runin, nome_usuario_liberacao, status)
             
             #Conta quantidade de Maquinas em Integração
             if producao.modos == 0:
@@ -219,53 +295,7 @@ def producao_list(request):
                 lista_resultados.append(resultado)
             elif datafimsalvo <= datafimwhere:
                 lista_resultados.append(resultado)
-            ################################################################################################################################
-            
-    if request.method == 'GET':
-        #return HttpResponse("Producao")
-        print(liberadas)
-        return render(request, 'producao.html',{'producao':lista_resultados, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'integracao':integracao, 'runin':runin, 'liberacao':liberacao, 'liberadas':liberadas})
-    
-    if request.method == 'POST':
-        #Tentativa de exportar a lista para excel
-        pesquisa = request.POST.get('search')
-        print(pesquisa)
-        
-        
-        if pesquisa != None:
-            atm = search_atm(pesquisa)
-            print(atm)
-            return render(request, 'producao_search.html',{'producao':atm, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'liberadas':liberadas})
-        else:
-        
-            column_names = ['indice', 'codigo', 'serie', 'data_inicio', 'data_fim', 'etapa', 'integracao', 'runin', 'liberacao']
-            
-            # Criar um DataFrame a partir da lista de dados
-            df = pd.DataFrame(lista_resultados, columns=column_names)
-            # Imprimir os nomes das colunas presentes no DataFrame
-            print(df.columns)
-
-            # Antes de exportar, remova as informações de fuso horário dos datetimes
-            df['data_inicio'] = df['data_inicio'].dt.tz_localize(None)
-            df['data_fim'] = df['data_fim'].dt.tz_localize(None)
-            
-            # Especificar o caminho do arquivo Excel de saída
-            caminho_arquivo_excel = 'dados.xlsx'
-
-            # Exportar os dados para o arquivo Excel
-            df.to_excel(caminho_arquivo_excel, index=False)
-            
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-                df.to_excel(tmp.name, index=False)
-                tmp.seek(0)
-                response = HttpResponse(tmp.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                response['Content-Disposition'] = 'attachment; filename="producao.xlsx"'
-                return response
-
-
-            
-            #return redirect()    
-
+    return lista_resultados, integracao, runin, liberacao, liberadas
 
 def producao_detalha(request, codigo, nserie):
     
@@ -279,7 +309,10 @@ def producao_detalha(request, codigo, nserie):
     usuarios = Usuarios.objects.all()
     
     testes = Testes.objects.all()
-    
+
+    tempoIntegracao = timedelta(0)
+    tempoRunin = timedelta(0)
+    tempoLiberacao = timedelta(0)
     for produto in producoes:
         for usuario in usuarios:
             if usuario.matricula == produto.matricula:
@@ -288,14 +321,44 @@ def producao_detalha(request, codigo, nserie):
         for teste in testes:
             if teste.codigo == produto.codigo:
                 desc_teste = teste.descricao
+                
+        ############################################################################################################################################
+        #Calculos de Tempos de Execuções de Teste
+        tempoExecucaoTeste = produto.dt_fim_prod - produto.dt_ini_prod
+        #Integracao
+        if(produto.modos == 0):             #Se for integração
+            diferenca = produto.dt_fim_prod - produto.dt_ini_prod
+            tempoIntegracao += diferenca
+            #print("Etapa: " + str(produto.modos))
+            calculo = produto.dt_fim_prod - produto.dt_ini_prod
+            #print("Calculo de data: " + str(produto.dt_ini_prod) + " + " + str(produto.dt_fim_prod) + " = " + str(calculo))
         
-        detalhes = (codigo, nserie, operador, produto.dt_ini_prod, produto.dt_fim_prod, produto.modos, produto.estado, desc_teste)
+        #Runin
+        if(produto.modos == 1):             #Se for Runin
+            diferenca = produto.dt_fim_prod - produto.dt_ini_prod
+            tempoRunin += diferenca
+            #print("Etapa: " + str(produto.modos))
+            calculo = produto.dt_fim_prod - produto.dt_ini_prod
+            #print("Calculo de data: " + str(produto.dt_ini_prod) + " + " + str(produto.dt_fim_prod) + " = " + str(calculo))
+        
+        #Liberação
+        if(produto.modos == 2):             #Se for Liberação
+            diferenca = produto.dt_fim_prod - produto.dt_ini_prod
+            tempoLiberacao += diferenca
+            #print("Etapa: " + str(produto.modos))
+            calculo = produto.dt_fim_prod - produto.dt_ini_prod
+            #print("Calculo de data: " + str(produto.dt_ini_prod) + " + " + str(produto.dt_fim_prod) + " = " + str(calculo))
+            
+        detalhes = (codigo, nserie, operador, produto.dt_ini_prod, produto.dt_fim_prod, produto.modos, produto.estado, desc_teste, tempoExecucaoTeste)
         
         lista_detalhes.append(detalhes)
-    
+        
+    #print("Tempo Integração: " + str(tempoIntegracao))
+    #print("Tempo Runin: " + str(tempoRunin))
+    #print("Tempo Liberação: " + str(tempoLiberacao))
     if request.method == 'GET':
         #print(lista_detalhes)
-        return render(request, 'producao_detalhe.html',{'producoes':lista_detalhes, 'codigo':codigo, 'nserie':nserie})
+        return render(request, 'producao_detalhe.html',{'producoes':lista_detalhes, 'codigo':codigo, 'nserie':nserie, 'tempoIntegracao':tempoIntegracao, 'tempoRunin':tempoRunin, 'tempoLiberacao': tempoLiberacao})
     
     if request.method == 'POST':
         #Tentativa de exportar a lista para excel
