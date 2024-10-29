@@ -12,26 +12,20 @@
     <div class="row">
         <!-- Pesquisa por Código -->
         <div class="col-auto">
-            <form action="{% url 'defeito' %}" method="POST" class="form-inline"> {% csrf_token %}
-                <div class="form-group">
-                    <input type="text" name="searchCodigo" class="form-control" placeholder="Digite o Código">
-                    <input type="submit" value="Pesquise" class="btn btn-primary ml-2">
-                </div>
-            </form>
-        </div>
-
-        <!-- Pesquisa por Data -->
-        <div class="col-auto">
             <form action="{% url 'defeito' %}" method="GET" class="form-inline"> {% csrf_token %}
                 <div class="form-group">
-                    <label for="data_selecionada_inicio" class="mr-2">Data Início</label>
-                    <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required class="form-control mr-3">
+                    <input type="text" name="searchCodigo" class="form-control" placeholder="Digite o Código">
+                    <div class="form-group">
+                        <label for="data_selecionada_inicio" class="mr-2">Data Início</label>
+                        <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required class="form-control mr-3">
+                    </div>
+                    <div class="form-group">
+                        <label for="data_selecionada_fim" class="mr-2">Data Fim</label>
+                        <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required class="form-control mr-3">
+                    </div>
+                    <input type="submit" value="Pesquise" class="btn btn-primary ml-2">
                 </div>
-                <div class="form-group">
-                    <label for="data_selecionada_fim" class="mr-2">Data Fim</label>
-                    <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required class="form-control mr-3">
-                </div>
-                <input type="submit" class="btn btn-secondary" value="Atualizar">
+
             </form>
         </div>
 
@@ -44,6 +38,13 @@
     </div>
 </div>
 <br><br><br>
+<div class="container" style="text-align: center;">
+    {% if codigo != None%}
+        <h1>{{codigo}}</h1>
+    {% endif %}
+</div>
+<br>
+
 <!--Chama script que monta o grafico-->
 <canvas id="defeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
 <br><br><br>

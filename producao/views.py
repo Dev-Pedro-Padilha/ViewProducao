@@ -17,7 +17,7 @@ import pytz
 from django.http import JsonResponse
 
 def producao_list(request):
-    
+    ################################################################################################################################################
     #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual
     data_selecionada_inicio = request.GET.get('data_selecionada_inicio')
     
@@ -25,7 +25,7 @@ def producao_list(request):
         data_selecionada_inicio = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
         
     inicio_data_hora = datetime.strptime(data_selecionada_inicio, '%Y-%m-%d')
-    print(inicio_data_hora)
+    #print(inicio_data_hora)
     
     data_selecionada_fim = request.GET.get('data_selecionada_fim')
     
@@ -34,7 +34,10 @@ def producao_list(request):
     
     fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
     fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
-    print(fim_data_hora)
+    #print(fim_data_hora)
+    ################################################################################################################################################
+    
+    qualEtapa = request.GET.get('qualEtapa')
     
     #Lista zerada para enviar ao front
     lista_resultados = []
@@ -55,11 +58,12 @@ def producao_list(request):
         print(liberadas)
         return render(request, 'producao.html',{'producao':lista_resultados, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'integracao':integracao, 'runin':runin, 'liberacao':liberacao, 'liberadas':liberadas})
     
+    ################################################################################################################################################################################################
+    #Metódo POST pode ser uma pesquisa ou um download
     if request.method == 'POST':
         #Tentativa de exportar a lista para excel
         pesquisa = request.POST.get('search')
-        print(pesquisa)
-        
+        #print(pesquisa)
         
         if pesquisa != None:
             atm = search_atm(pesquisa)
@@ -242,30 +246,32 @@ def getDetails(dadosSdp, integracao, runin, liberacao, liberadas, fim_data_hora)
                 nome_usuario_liberacao = None
             ########################################################################################################
             status = -1
-            
+            ########################################################################################################
+            #Variavel Status
             if(producao.modos == 7):
                 status = 3
             else:
                 calcData = Producao.objects.filter(cd_produto=magnus_produto, nro_serie=producao.serie)
-                print(magnus_produto)
-                print(producao.serie)
+                #print(magnus_produto)
+                #print(producao.serie)
                 calculo = calcData.last()
-                print(calculo)
+                #print(calculo)
                 dataStart = calculo.dt_ini_prod
-                print(dataStart)
+                #print(dataStart)
                 dataEnd = calculo.dt_fim_prod
-                print(dataEnd)
+                #print(dataEnd)
                 dataAtual = datetime.now()
-                print(dataAtual)
+                #print(dataAtual)
                 diferenca = dataAtual - dataEnd
-                print(diferenca)
+                #print(diferenca)
                 if(calculo.estado == 500 and diferenca > cinco_minutos):
                     status = 2
                 elif(calculo.estado == 100 and diferenca > cinco_minutos):
                     status = 1
                 elif(diferenca < cinco_minutos):
                     status = 0
-            print(status)
+            #print(status)
+            ########################################################################################################
             resultado = (producao.indice, magnus_produto, producao.serie, producao.dataini, producao.datafim, producao.modos, nome_usuario, nome_usuario_runin, nome_usuario_liberacao, status)
             
             #Conta quantidade de Maquinas em Integração

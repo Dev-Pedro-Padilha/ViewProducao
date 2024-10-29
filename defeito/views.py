@@ -7,6 +7,7 @@ import tempfile
 import json
 
 def retornaIndicesByDate(inicio_data_hora, fim_data_hora):
+    print("retornaIndicesByDate")
     # Execute a consulta usando o ORM do Django
     # Lista de valores de NRO_SERIE a serem excluídos
     nro_serie_excluidos = list(range(11))
@@ -17,6 +18,7 @@ def retornaIndicesByDate(inicio_data_hora, fim_data_hora):
     return indices
 
 def retornaIndicesByCodigo(inicio_data_hora, fim_data_hora, codigo):
+    print("retornaIndicesByCodigo")
     # Execute a consulta usando o ORM do Django
     # Lista de valores de NRO_SERIE a serem excluídos
     nro_serie_excluidos = list(range(11))
@@ -73,9 +75,7 @@ def GetDataDefeitos(indices):
             lista.append(data)
     return lista
 
-# Create your views here.
-def defeitos(request):
-    
+def GetDataHora(request):
     #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual
     data_selecionada_inicio = request.GET.get('data_selecionada_inicio')
     
@@ -93,50 +93,53 @@ def defeitos(request):
     fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
     fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
     print(fim_data_hora)
-    #--------------------------------------------------------------------------------------------------------
-    #Chama função que retorna os indices de maquinas entradas filtrado por data
-    indices = retornaIndicesByDate(inicio_data_hora, fim_data_hora)
+    ##Retornos: 1° e 2° = data formatada para consulta no banco; 3° e 4°: Data formatada para enviar ao front
+    return inicio_data_hora, fim_data_hora, data_selecionada_inicio, data_selecionada_fim
 
-    #Chama função que retorna lista dos defeitos formatados
-    lista = GetDataDefeitos(indices)
-    
-    if request.method == "GET":
-        listaJson = json.dumps(lista)
-        return render(request, 'defeitos.html', {'data': lista, 'datajson':listaJson, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim,})
-    
-    if request.method == "POST":
+# Create your views here.
+def defeitos(request):
         
-        pesquisa = request.POST.get('searchCodigo')
+    if request.method == "GET":
+        
+        pesquisa = request.GET.get('searchCodigo')
         print(pesquisa)
         
+        #Chama função que retorna Data e Hora formatada para seus respectivos usos
+        inicio_data_hora, fim_data_hora, data_selecionada_inicio, data_selecionada_fim = GetDataHora(request)
+        
         #Se vier algo na Pesquisa (codigo)
-        if(pesquisa != None):
+        if(pesquisa != None and len(pesquisa) == 10):
             #Chama função que retorna os indices de maquinas entradas filtrado por data
             indices = retornaIndicesByCodigo(inicio_data_hora, fim_data_hora, pesquisa)
-
-            #Chama função que retorna lista dos defeitos formatados
-            lista = GetDataDefeitos(indices)
             
-            listaJson = json.dumps(lista)
-            
-            return render(request, 'defeitos.html', {'data': lista, 'datajson':listaJson, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim,})
         else:
-            column_names = ['codigo', 'serie', 'etapa', 'teste', 'local_defeito', 'defeito', 'observacao']
+            #Chama função que retorna os indices de maquinas entradas filtrado por data
+            indices = retornaIndicesByDate(inicio_data_hora, fim_data_hora)
             
-            # Criar um DataFrame a partir da lista de dados
-            df = pd.DataFrame(lista, columns=column_names)
-            # Imprimir os nomes das colunas presentes no DataFrame
-            print(df.columns)
-            
-            # Especificar o caminho do arquivo Excel de saída
-            caminho_arquivo_excel = 'defeitos.xlsx'
+        print(indices)
+        #Chama função que retorna lista dos defeitos formatados
+        lista = GetDataDefeitos(indices)
+        listaJson = json.dumps(lista)
+        return render(request, 'defeitos.html', {'data': lista, 'datajson':listaJson, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'codigo': pesquisa})
 
-            # Exportar os dados para o arquivo Excel
-            df.to_excel(caminho_arquivo_excel, index=False)
-            
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-                df.to_excel(tmp.name, index=False)
-                tmp.seek(0)
-                response = HttpResponse(tmp.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                response['Content-Disposition'] = 'attachment; filename="defeitos.xlsx"'
-                return response
+    #Se o método da requisição for POST retorna excel
+    if request.method == "POST":
+        column_names = ['codigo', 'serie', 'etapa', 'teste', 'local_defeito', 'defeito', 'observacao']
+        
+        # Criar um DataFrame a partir da lista de dados
+        df = pd.DataFrame(lista, columns=column_names)
+        # Imprimir os nomes das colunas presentes no DataFrame
+        print(df.columns)
+        
+        # Especificar o caminho do arquivo Excel de saída
+        caminho_arquivo_excel = 'defeitos.xlsx'
+
+        # Exportar os dados para o arquivo Excel
+        df.to_excel(caminho_arquivo_excel, index=False)
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+            df.to_excel(tmp.name, index=False)
+            tmp.seek(0)
+            response = HttpResponse(tmp.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename="defeitos.xlsx"'
+            return response

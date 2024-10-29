@@ -32,7 +32,7 @@
         <th>Matricula</th>
         <th>Nome</th>
         <th>Acesso
-          <select id="acesso" onchange="filtrarLista()">
+          <select id="acesso" name="acesso" onchange="filtrarLista()">
           <!-- Define qual sera o primeiro da lista-->
             {% if acesso == '1' or acesso == None %}
               <option value="1">Todos</option>
@@ -104,7 +104,14 @@
   </table>
 </div>
 
-<script src="{% static 'js/getstatus.js' %}"></script>
-
+<script>
+  // Função para filtrar a lista e redirecionar
+function filtrarLista() {
+  const filtro = document.getElementById('status').value;
+  const acesso = document.getElementById('acesso').value;
+  const url = '/usuarios?status=' + filtro + '&acesso=' + acesso;
+  window.location.href = url;
+}
+</script>
 
 {% endblock %}
