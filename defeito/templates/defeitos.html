@@ -5,15 +5,15 @@
 
 {% block content %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/styles_producao.css' %}">
+<link rel="stylesheet" href="{% static 'css/styles_defeitos.css' %}">
 
-
+<!-- Filtros de Pesquisa -->
 <div class="container">
     <div class="row">
-        <!-- Pesquisa por Código -->
         <div class="col-auto">
             <form action="{% url 'defeito' %}" method="GET" class="form-inline"> {% csrf_token %}
                 <div class="form-group">
+                    <label for="searchCodigo" class="mr-2">Pesquise por Código</label>
                     <input type="text" name="searchCodigo" class="form-control" placeholder="Digite o Código">
                     <div class="form-group">
                         <label for="data_selecionada_inicio" class="mr-2">Data Início</label>
@@ -23,6 +23,33 @@
                         <label for="data_selecionada_fim" class="mr-2">Data Fim</label>
                         <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required class="form-control mr-3">
                     </div>
+                    <div>
+                        <label for="etapa" class="mr-2">Etapa</label><br>
+                        <select id="etapa" name="etapa">
+                            {% if etapa == '7' or etapa == None %}
+                                <option value="7">Todos</option>
+                                <option value="0">Integração</option>
+                                <option value="1">Runin</option>
+                                <option value="2">Liberação</option>
+                            {% elif etapa == '0' %}
+                                <option value="0">Integração</option>
+                                <option value="7">Todos</option>
+                                <option value="1">Runin</option>
+                                <option value="2">Liberação</option>
+                            {% elif etapa == '1' %}
+                                <option value="1">Runin</option>
+                                <option value="7">Todos</option>
+                                <option value="0">Integração</option>
+                                <option value="2">Liberação</option>
+                            {% elif etapa == '2' %}
+                                <option value="2">Liberação</option>
+                                <option value="7">Todos</option>
+                                <option value="0">Integração</option>
+                                <option value="1">Runin</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <br>
                     <input type="submit" value="Pesquise" class="btn btn-primary ml-2">
                 </div>
 
@@ -38,16 +65,44 @@
     </div>
 </div>
 <br><br><br>
+<!-- Titulo relatorio -->
 <div class="container" style="text-align: center;">
-    {% if codigo != None%}
-        <h1>{{codigo}}</h1>
-    {% endif %}
+    
+        <h1>
+            {% if codigo != None and codigo != "" %}
+                {{codigo}}
+            {% else %}
+                
+            {% endif %}
+            <br>
+            {% if etapa == '0' %}
+                Integração
+            {% elif etapa == '1' %}
+                Runin
+            {% elif etapa == '2' %}
+                Liberação
+            {% else%}
+
+            {% endif %}
+        </h1>
+    
 </div>
 <br>
 
-<!--Chama script que monta o grafico-->
+<h1>Defeitos</h1>
+<!--Chama script que monta o grafico Defeitos-->
 <canvas id="defeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
 <br><br><br>
+<h1>Local Defeitos</h1>
+<!--Chama script que monta o grafico Local Defeitos-->
+<canvas id="localDefeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
+<br><br><br>
+<h1>Testes</h1>
+<!--Chama script que monta o grafico Local Defeitos-->
+<canvas id="testesChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
+<br><br><br>
+
+<!--Monta Tabela-->
 <div class="container">
     <table id="tabela-defeitos">
         <tr class="tr_titulo">
@@ -75,9 +130,16 @@
     </table>
 </div>
 
+<script>
+    const defeitosDataJson = JSON.parse('{{ datajson|escapejs }}');
+</script>
+<script src="{% static 'js/grafico_defeitos.js' %}"></script>
+<script src="{% static 'js/grafico_local_defeitos.js' %}"></script>
+<script src="{% static 'js/grafico_testes.js' %}"></script>
 
 
 
+<!--
 <script>
     // Define os dados usando JSON válido
     const defeitosData = JSON.parse('{{ datajson|escapejs }}');
@@ -119,7 +181,10 @@
         }
     });
 </script>
+-->
 
 <script src="{% static 'js/download.js' %}"></script>
+
+
 
 {% endblock %}

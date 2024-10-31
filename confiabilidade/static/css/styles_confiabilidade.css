@@ -1,0 +1,46 @@
+.table th {
+    padding-left: 10px; /* Adiciona espaço à esquerda */
+    padding-right: 50px; /* Adiciona espaço à direita */
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ddd;
+}
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+tr:hover {
+    background-color: #ddd;
+}
+tr.clickable-row {
+    cursor: pointer;
+}
+tr:first-child {
+    background-color: rgb(51, 56, 195); /* Change this to your desired color */
+}
+.codigo-col {
+    width: 10%;  /* Adjust the percentage as needed */
+}
+.modelo-col {
+    width: 30%;
+}
+.serie-col {
+    width: 5%;
+}
+.pagamento-col {
+    width: 10%;
+}
+.firmware-col {
+    width: 10%;
+}
+.alteracoes-col {
+    width: 50%;
+}
+.erros-col {
+    width: 5%;
+}

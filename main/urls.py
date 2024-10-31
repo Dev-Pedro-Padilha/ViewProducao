@@ -8,6 +8,7 @@ urlpatterns = [
     path('produto', include('produto.urls'),name='produto'),
     path('producao', include('producao.urls'),name='producao'),
     path('defeito', include('defeito.urls'),name='defeito'),
+    path('confiabilidade', include('confiabilidade.urls'),name='confiabilidade'),
        
 ]
 

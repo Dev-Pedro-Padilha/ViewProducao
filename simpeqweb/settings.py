@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'produto',
     'producao',
     'defeito',
+    'confiabilidade',
 ]
 
 

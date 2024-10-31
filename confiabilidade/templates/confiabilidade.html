@@ -1,0 +1,41 @@
+<!-- outra_pagina.html -->
+{% extends 'base.html' %}
+
+{% block title %}Defeitos{% endblock %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles_confiabilidade.css' %}">
+
+{{api_data}}
+
+<!--Monta Tabela-->
+<div class="container">
+    <table id="tabela-registros">
+        <tr class="tr_titulo">
+            <th class="codigo-col">Código</th>
+            <th class="modelo-col">Modelo</th>
+            <th class="serie-col">Serie</th>
+            <th class="pagamento-col">Pagamento</th>
+            <th class="firmware-col">Firmware</th>
+            <th class="alteracoes-col">Alterações</th>
+            <th class="erro-col">Erros</th>
+        </tr>
+        
+        {% for data in api_data %}
+            <tr class="clickable-row">
+                <td class="codigo-col">{{data.codigo}}</td>
+                <td class="modelo-col">{{data.modelo}}</td>
+                <td class="serie-col">{{data.serie}}</td>
+                <td class="pagamento-col">{{data.pagamento}}</td>
+                <td class="firmware-col">{{data.firmware}}</td>
+                <td class="alteracoes">{{data.alteracoes}}</td>
+                <td class="erro-col">{{data.erro}}</td>
+            </tr>
+        {% endfor %}
+
+    </table>
+</div>
+
+{% endblock %}

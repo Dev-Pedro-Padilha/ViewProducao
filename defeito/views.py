@@ -7,31 +7,34 @@ import tempfile
 import json
 
 def retornaIndicesByDate(inicio_data_hora, fim_data_hora):
-    print("retornaIndicesByDate")
+    #print("retornaIndicesByDate")
     # Execute a consulta usando o ORM do Django
     # Lista de valores de NRO_SERIE a serem excluídos
     nro_serie_excluidos = list(range(11))
     indices = Resultados.objects.filter(
-        dataini__range=(inicio_data_hora, fim_data_hora)
-    ).exclude(serie__in=nro_serie_excluidos).values('indice', 'magnus', 'serie').order_by('magnus')
-    
+        dataini__range=(inicio_data_hora, fim_data_hora)).exclude(serie__in=nro_serie_excluidos).values('indice', 'magnus', 'serie').order_by('serie')
+
     return indices
 
 def retornaIndicesByCodigo(inicio_data_hora, fim_data_hora, codigo):
-    print("retornaIndicesByCodigo")
+    #print("retornaIndicesByCodigo")
     # Execute a consulta usando o ORM do Django
     # Lista de valores de NRO_SERIE a serem excluídos
     nro_serie_excluidos = list(range(11))
     indices = Resultados.objects.filter(
         dataini__range=(inicio_data_hora, fim_data_hora), magnus=codigo).exclude(serie__in=nro_serie_excluidos).values('indice', 'magnus', 'serie').order_by('serie')
-    
+
     return indices
 
-def GetDataDefeitos(indices):
+def GetDataDefeitos(indices, etapa):
     lista = []
+    
     for indice in indices:
         #print("indice: " + str(indice['indice']))
-        defeitos = DefeitoResultados2.objects.filter(indice=indice['indice'])
+        if(etapa == '7' or etapa == None):
+            defeitos = DefeitoResultados2.objects.filter(indice=indice['indice'])
+        elif(etapa != 7):
+            defeitos = DefeitoResultados2.objects.filter(indice=indice['indice'], modo_defeito=etapa)
         for defeito in defeitos:
             #print(defeito)
             #########################################################################################################################
@@ -83,7 +86,7 @@ def GetDataHora(request):
         data_selecionada_inicio = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
         
     inicio_data_hora = datetime.strptime(data_selecionada_inicio, '%Y-%m-%d')
-    print(inicio_data_hora)
+    #print(inicio_data_hora)
     
     data_selecionada_fim = request.GET.get('data_selecionada_fim')
     
@@ -92,7 +95,7 @@ def GetDataHora(request):
     
     fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
     fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
-    print(fim_data_hora)
+    #print(fim_data_hora)
     ##Retornos: 1° e 2° = data formatada para consulta no banco; 3° e 4°: Data formatada para enviar ao front
     return inicio_data_hora, fim_data_hora, data_selecionada_inicio, data_selecionada_fim
 
@@ -101,8 +104,10 @@ def defeitos(request):
         
     if request.method == "GET":
         
+        etapa = request.GET.get('etapa')
+        
         pesquisa = request.GET.get('searchCodigo')
-        print(pesquisa)
+        #print(pesquisa)
         
         #Chama função que retorna Data e Hora formatada para seus respectivos usos
         inicio_data_hora, fim_data_hora, data_selecionada_inicio, data_selecionada_fim = GetDataHora(request)
@@ -115,12 +120,11 @@ def defeitos(request):
         else:
             #Chama função que retorna os indices de maquinas entradas filtrado por data
             indices = retornaIndicesByDate(inicio_data_hora, fim_data_hora)
-            
-        print(indices)
+        #print(indices)
         #Chama função que retorna lista dos defeitos formatados
-        lista = GetDataDefeitos(indices)
+        lista = GetDataDefeitos(indices, etapa)
         listaJson = json.dumps(lista)
-        return render(request, 'defeitos.html', {'data': lista, 'datajson':listaJson, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'codigo': pesquisa})
+        return render(request, 'defeitos.html', {'data': lista, 'datajson':listaJson, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'codigo': pesquisa, 'etapa': etapa})
 
     #Se o método da requisição for POST retorna excel
     if request.method == "POST":
