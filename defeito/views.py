@@ -5,6 +5,7 @@ from datetime import datetime
 import pandas as pd
 import tempfile
 import json
+from login.decorators import login_required  # Importa o decorator
 
 def retornaIndicesByDate(inicio_data_hora, fim_data_hora):
     #print("retornaIndicesByDate")
@@ -99,7 +100,7 @@ def GetDataHora(request):
     ##Retornos: 1° e 2° = data formatada para consulta no banco; 3° e 4°: Data formatada para enviar ao front
     return inicio_data_hora, fim_data_hora, data_selecionada_inicio, data_selecionada_fim
 
-# Create your views here.
+@login_required  # Aplica o decorator aqui
 def defeitos(request):
         
     if request.method == "GET":

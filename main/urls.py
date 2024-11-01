@@ -9,6 +9,7 @@ urlpatterns = [
     path('producao', include('producao.urls'),name='producao'),
     path('defeito', include('defeito.urls'),name='defeito'),
     path('confiabilidade', include('confiabilidade.urls'),name='confiabilidade'),
+    path('login', include('login.urls'),name='login'),
        
 ]
 

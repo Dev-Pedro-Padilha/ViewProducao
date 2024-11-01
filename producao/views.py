@@ -15,7 +15,9 @@ import pandas as pd
 import tempfile
 import pytz
 from django.http import JsonResponse
+from login.decorators import login_required  # Importa o decorator
 
+@login_required  # Aplica o decorator aqui
 def producao_list(request):
     ################################################################################################################################################
     #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual

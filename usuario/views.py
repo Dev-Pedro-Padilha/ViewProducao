@@ -2,11 +2,13 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from main.models import Usuarios, Acesso        #.models = arquivo onde estão as tabelas do bando - Usuarios = nome da tabela do banco
+from login.decorators import login_required  # Importa o decorator
 
 #Pagina Inicial do sistema
 def home(request):
     return render(request,'home.html')
-    
+
+@login_required  # Aplica o decorator aqui
 def usuarios_list(request):
     if request.method == 'GET':
         '''usuarios=Usuarios.objects.all()

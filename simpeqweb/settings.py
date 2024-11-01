@@ -46,7 +46,10 @@ INSTALLED_APPS = [
     'producao',
     'defeito',
     'confiabilidade',
+    'login',
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 
 MIDDLEWARE = [
@@ -58,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.cross_origin_opener_policy.CrossOriginOpenerPolicyMiddleware',
+    'login.middleware.TokenAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'simpeqweb.urls'

@@ -4,8 +4,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from main.models import Produto
-# Create your views here.
+from login.decorators import login_required  # Importa o decorator
 
+
+@login_required  # Aplica o decorator aqui
 def produto_list(request):
     
     if request.method == 'GET':
