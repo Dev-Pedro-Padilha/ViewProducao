@@ -35,6 +35,8 @@ def login_view(request):
             request.session['title'] = api_data.get('user')['title']
             request.session['department'] = api_data.get('user')['department']
             request.session['mail'] = api_data.get('user')['mail']
+            photo = api_data.get('user')['thumbnailPhoto']
+            request.session['photo'] = f"data:image/png;base64,{photo}"
             
             # Aqui você pode redirecionar ou passar os dados da resposta para o contexto
             return redirect('home')

@@ -10,6 +10,7 @@ class TokenAuthenticationMiddleware(MiddlewareMixin):
         title = request.session.get('title')
         department = request.session.get('department')
         mail = request.session.get('mail')
+        photo = request.session.get('photo')
 
         if token and username:
             try:
@@ -22,6 +23,7 @@ class TokenAuthenticationMiddleware(MiddlewareMixin):
                 request.user = title  # Ou um objeto User se preferir
                 request.user = department  # Ou um objeto User se preferir
                 request.user = mail  # Ou um objeto User se preferir
+                request.user = photo
             except jwt.ExpiredSignatureError:
                 request.user = None  # Token expirado
             except jwt.InvalidTokenError:

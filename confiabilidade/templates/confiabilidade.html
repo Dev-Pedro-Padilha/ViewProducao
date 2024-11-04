@@ -7,9 +7,9 @@
 
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/styles_confiabilidade.css' %}">
-
+<br><br>
 {{api_data}}
-
+<br><br>
 <!--Monta Tabela-->
 <div class="container">
     <table id="tabela-registros">
@@ -17,10 +17,11 @@
             <th class="codigo-col">Código</th>
             <th class="modelo-col">Modelo</th>
             <th class="serie-col">Serie</th>
-            <th class="pagamento-col">Pagamento</th>
+            <th class="ciclos-col">Ciclos</th>
             <th class="firmware-col">Firmware</th>
-            <th class="alteracoes-col">Alterações</th>
-            <th class="erro-col">Erros</th>
+            <th class="date-col">Data</th>
+            <th class="status-col">Status</th>
+            <th class="tipo-col">Tipo</th>
         </tr>
         
         {% for data in api_data %}
@@ -28,10 +29,11 @@
                 <td class="codigo-col">{{data.codigo}}</td>
                 <td class="modelo-col">{{data.modelo}}</td>
                 <td class="serie-col">{{data.serie}}</td>
-                <td class="pagamento-col">{{data.pagamento}}</td>
+                <td class="ciclos-col">{{data.ciclos}}</td>
                 <td class="firmware-col">{{data.firmware}}</td>
-                <td class="alteracoes">{{data.alteracoes}}</td>
-                <td class="erro-col">{{data.erro}}</td>
+                <td class="alteracoes">{{data.data_registro}}</td>
+                <td class="erro-col">{{data.id_status}}</td>
+                <td class="erro-col">{{data.id_tipo_periferico}}</td>
             </tr>
         {% endfor %}
 
