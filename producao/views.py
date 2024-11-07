@@ -22,12 +22,12 @@ def producao_list(request):
     ################################################################################################################################################
     #Data enviada do formulario do front, na primeira vez sempre irá assumir data atual
     data_selecionada_inicio = request.GET.get('data_selecionada_inicio')
-    
+    print(data_selecionada_inicio)
     if not data_selecionada_inicio:
         data_selecionada_inicio = datetime.now().strftime('%Y-%m-%d')  # Use the current date if no date is selected
         
     inicio_data_hora = datetime.strptime(data_selecionada_inicio, '%Y-%m-%d')
-    #print(inicio_data_hora)
+    print(inicio_data_hora)
     
     data_selecionada_fim = request.GET.get('data_selecionada_fim')
     
@@ -36,7 +36,7 @@ def producao_list(request):
     
     fim_data_hora = datetime.strptime(data_selecionada_fim, '%Y-%m-%d')
     fim_data_hora = fim_data_hora.replace(hour=23, minute=59, second=59)
-    #print(fim_data_hora)
+    print(fim_data_hora)
     ################################################################################################################################################
     
     qualEtapa = request.GET.get('qualEtapa')
@@ -73,7 +73,7 @@ def producao_list(request):
             return render(request, 'producao_search.html',{'producao':atm, 'data_inicio':data_selecionada_inicio, 'data_fim':data_selecionada_fim, 'liberadas':liberadas})
         else:
         
-            column_names = ['indice', 'codigo', 'serie', 'data_inicio', 'data_fim', 'etapa', 'integracao', 'runin', 'liberacao']
+            column_names = ['indice', 'codigo', 'serie', 'data_inicio', 'data_fim', 'etapa', 'integracao', 'runin', 'liberacao', 'status']
             
             # Criar um DataFrame a partir da lista de dados
             df = pd.DataFrame(lista_resultados, columns=column_names)
@@ -371,7 +371,7 @@ def producao_detalha(request, codigo, nserie):
     if request.method == 'POST':
         #Tentativa de exportar a lista para excel
                
-        column_names = ['codigoProduto', 'serie', 'operador', 'data_inicio', 'data_fim', 'etapa', 'estado', 'teste']
+        column_names = ['codigoProduto', 'serie', 'operador', 'data_inicio', 'data_fim', 'etapa', 'estado', 'teste', 'tempo']
         
         # Criar um DataFrame a partir da lista de dados
         df = pd.DataFrame(lista_detalhes, columns=column_names)

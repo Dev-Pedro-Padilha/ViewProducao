@@ -41,7 +41,7 @@
     <!--Botão para gerar aquivo excel-->
     <form action="{% url 'producao.detalhe' codigo nserie %}" method="POST">
         {% csrf_token %}
-        <input type="submit" value="Download" id="downloadExcel" class="btn btn-secondary">
+        <input type="submit" value="Exportar (.xlsx)" id="downloadExcel" class="btn btn-secondary">
     </form>
 
     <!--Botão para gerar dados das medidas-->
@@ -72,13 +72,13 @@
 
     <!--Botão para gerar dados dos perificos vinculados ao produto-->
     <div class="btn-group" role="group" aria-label="Basic example">
-        <a type="button" class="btn btn-secondary" id="popup_perifericos">Periféricos</a>
+        <a type="button" class="btn btn-secondary" id="popup_perifericos">Periféricos Vinculados</a>
         <!-- Popup Periféricos -->
         <div class="modal fade" id="perifericosModal" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel2">Periféricos</h5>
+                        <h5 class="modal-title" id="exampleModalLabel2">Periféricos Vinculados</h5>
                         <button type="button" class="btn-close" ddata-bs-toggle="modal" data-bs-target="#perifericosModal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="modal-body-perifericos">
@@ -95,7 +95,7 @@
 
     <!--Botão para printar os dados de defeitos vinculados ao produto-->
     <div class="btn-group" role="group" aria-label="Basic example">
-        <a type="button" class="btn btn-secondary" id="popup_defeitos">Defeitos</a>
+        <a type="button" class="btn btn-secondary" id="popup_defeitos">Defeitos </a>
         <!-- Popup Periféricos -->
         <div class="modal fade" id="defeitosModal" tabindex="-1" aria-labelledby="exampleModalLabel3" aria-hidden="true">
             <div class="modal-dialog modal-xl">
@@ -128,8 +128,8 @@
     <table id="tabela-producao" class="table">
         <thead>
             <tr>
-                <th class="teste-col">Teste</th>
-                <th class="estado-col">Estado</th>
+                <th class="teste-col">Etapa do Teste</th>
+                <th class="estado-col">Situação</th>
                 <th class="modos-col">Modos</th>
                 <th class="data-inicio-col">Data Inicio</th>
                 <th class="data-fim-col">Data Fim</th>
@@ -143,9 +143,9 @@
                     <td class="codigo-col">{{producao.7}}</td>
                     <td class="estado-col">
                         {% if producao.6 == 100 %}
-                            Ok
+                            Aprovado
                         {% elif producao.6 == 500 %}
-                            Erro
+                            Reprovado
                         {% endif %}
                     </td>
                     <td class="modos-col">

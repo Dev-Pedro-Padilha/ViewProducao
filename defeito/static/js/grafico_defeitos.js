@@ -1,8 +1,12 @@
+// Obtenha o índice selecionado do input HTML
+const valor = parseInt(document.getElementById('indice').value);
+console.log("Valor:", valor);
+
 // Define os dados usando JSON válido
 console.log("Dados de defeitos:", defeitosDataJson);  // Verifica os dados no console
 
 // Transformar dados para o gráfico
-const defeitos = defeitosDataJson.map(item => item[5]);  // Tipo de Defeito
+const defeitos = defeitosDataJson.map(item => item[valor]);  // Tipo de Defeito
 
 // Contar a frequência de cada defeito
 const defeitoFrequencia = {};

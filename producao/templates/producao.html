@@ -9,41 +9,44 @@
 
 <div class="container">
     <div class="liberadas">
-        <h1>Liberadas</h1>
+        <h1>Concluídas</h1>
         <p>{{liberadas}}</p>
     </div>
     <div class="emliberacao">
-        <h2>Em Liberação</h2>
+        <h2>Liberação</h2>
         <p>{{liberacao}}</p>
     </div>
     <div class="emrunin">
-        <h2>Em Runin</h2>
+        <h2>Runin</h2>
         <p>{{runin}}</p>
     </div>
     <div class="emintegracao">
-        <h2>Em Integração</h2>
+        <h2>Integração</h2>
         <p>{{integracao}}</p>
     </div>     
 
+    <form action="{% url 'producao' %}" method="POST">{% csrf_token %}
+        <input type="submit" value="Exportar (.xlsx)" id="downloadExcel" class="btn btn-secondary">
+    </form>
+    <label for="data_selecionada_inicio">Número de Série</label>
+    <form action="{% url 'producao' %}" method="POST"> {% csrf_token %}
+        <input type="text" name="search" placeholder="Digite o Número de Série">
+        <input type="submit" value="Pesquisar">
+    </form>
     <form action="{% url 'producao' %}" method="GET">{% csrf_token %}
         <div class="btn-group" role="group" aria-label="Basic example">
-            <form action="{% url 'producao' %}" method="POST">{% csrf_token %}
-                <input type="submit" value="Salvar" id="downloadExcel" class="btn btn-secondary">
-            </form>
+            
             <input type="submit" class="btn btn-secondary" value="Atualizar">
             <a type="button" class="btn btn-secondary" href="{% url 'home' %}">Voltar</a>
             <br>
         </div>
         <br>
-        <form action="{% url 'producao' %}" method="POST"> {% csrf_token %}
-            <input type="text" name="search" placeholder="Digite o Numero de Série">
-            <input type="submit" value="Pesquise">
-        </form>
-        <label for="data_selecionada_inicio">Data Inicio</label>
+        
+        <label for="data_selecionada_inicio">Inicio</label>
         <br>
         <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required>
         <br>
-        <label for="data_selecionada_fim">Data Fim</label>
+        <label for="data_selecionada_fim">Fim</label>
         <br>
         <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required>
         <br>
@@ -56,14 +59,14 @@
         <table id="tabela-producao">
             <tr class="tr_titulo">
                 <th class="codigo-col">Código</th>
-                <th class="numero-serie-col">Série</th>
+                <th class="numero-serie-col">N Série</th>
                 <th class="data-inicio-col">Data Início</th>
                 <th class="data-fim-col">Data Fim</th>
                 <th class="etapa-col">Etapa</th>
                 <th class="status-col">Status</th>
-                <th class="integracao-col">Integração</th>
-                <th class="runin-col">Runin</th>
-                <th class="liberacao-col">Liberação</th>
+                <th class="integracao-col">Testador Integração</th>
+                <th class="runin-col">Testador Runin</th>
+                <th class="liberacao-col">Testador Liberação</th>
             </tr>
             
             {% for prod in producao %}
@@ -71,7 +74,13 @@
                     <td class="codigo-col">{{prod.1}}</td>
                     <td class="numero-serie-col">{{prod.2}}</td>
                     <td class="data-inicio-col">{{prod.3}}</td>
-                    <td class="data-fim-col">{{prod.4}}</td>
+                    <td class="data-fim-col">
+                        {% if prod.4 == None%}
+                            -
+                        {% else %}
+                            {{prod.4}}
+                        {% endif %}
+                    </td>
                     <td class="etapa-col">
                         {% if prod.5 == 0 %}
                             <p style="color:red">Integração</p>
@@ -95,8 +104,20 @@
                         {% endif %}
                     </td>
                     <td class="integracao-col">{{prod.6}}</td>
-                    <td class="runin-col">{{prod.7}}</td>
-                    <td class="liberacao-col">{{prod.8}}</td>
+                    <td class="runin-col">
+                        {% if prod.7 == None%}
+                            -
+                        {% else %}
+                            {{prod.7}}
+                        {% endif %}
+                        </td>
+                    <td class="liberacao-col">
+                        {% if prod.8 == None%}
+                            -
+                        {% else %}
+                            {{prod.8}}
+                        {% endif %}
+                        </td>
                 </tr>
             {% endfor %}
 

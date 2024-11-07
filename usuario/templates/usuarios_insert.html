@@ -22,19 +22,19 @@
         <form action="{% url 'usuarios.insert' %}" method="POST">{% csrf_token %}
             <br>
             <br>
-            <label for="exampleInputPassword1">Matricula</label><br>
-            <input type="number" name="matricula", placeholder="Digite sua matricula">
+            <label for="exampleInputPassword1">Matrícula</label><br>
+            <input type="number" name="matricula", placeholder="Digite a matrícula">
             <br>
             <br>
             <label for="exampleInputPassword1">Nome</label><br>
-            <input type="text" name="nome" placeholder="Digite seu nome">
+            <input type="text" name="nome" placeholder="Digite o nome">
             <br>
             <br>
             <label for="exampleInputPassword1">Senha</label><br>
             <input type="password" name="password", placeholder="Digite a senha">
             <br>
             <br>
-            <label for="exampleInputPassword1">Acesso</label><br>
+            <label for="exampleInputPassword1">Nível de Acesso</label><br>
             <select name="acesso" class="form-control">
                 {% for acess in acesso %}
                 <option value="{{acess.cd_acesso}}">{{acess.ds_acesso}}</option>
@@ -42,7 +42,7 @@
             </select>
             <br>
             <br>
-            <label for="exampleInputPassword1">Ativo</label><br>
+            <label for="exampleInputPassword1">Situação do Usuário</label><br>
             <select name="ativo" class="form-control">
                 <option value="S">Ativo</option>
                 <option value="N">Não Ativo</option>

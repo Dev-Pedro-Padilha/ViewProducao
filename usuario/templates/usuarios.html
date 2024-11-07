@@ -7,29 +7,30 @@
 {% load static %}
 <!-- Aqui inicia a pagina -->
 <div class="container">
-  <h1 style="text-align:center"><b>USUARIOS</b></h1>
+  <h1 style="text-align:center"><b>USUÁRIOS</b></h1>
 </div>
 
 
 
 <div class="container">
   <div class="btn-group" role="group" aria-label="Basic example">
-    <a type="button" class="btn btn-secondary" href="{% url 'usuarios.insert' %}">Novo Usuario</a>
+    <a type="button" class="btn btn-secondary" href="{% url 'usuarios.insert' %}">Novo Usuário</a>
     <a type="button" class="btn btn-secondary" href="{% url 'usuarios' %}">Atualizar</a>
     <a type="button" class="btn btn-secondary" href="{% url 'home' %}">Voltar</a>
   </div>
   <br>
   <br>
+
   <form action="{% url 'usuarios' %}" method="POST"> {% csrf_token %}
-    <input type="text" name="search" placeholder="Pesquise">
-    <input type="submit" value="Pesquise">
+    <input type="text" name="search" placeholder="Digite a matrícula">
+    <input type="submit" value="Pesquisar">
   </form>
 
   <br>
   <table class="table">
     <thead class="thead-dark">
       <tr>
-        <th>Matricula</th>
+        <th>Matrícula</th>
         <th>Nome</th>
         <th>Acesso
           <select id="acesso" name="acesso" onchange="filtrarLista()">
@@ -55,7 +56,7 @@
             {% endfor %}
           </select>
         </th>
-        <th>Status
+        <th>Situação
           <select id="status" name="status" onchange="filtrarLista()">
             {% if status == 'T' or status == None %}
               <option value="T">Todos</option>
@@ -73,7 +74,7 @@
 
           </select>
         </th>
-        <th>#</th>
+        <th>Configurar</th>
       </tr>
     </thead>
     <tbody>

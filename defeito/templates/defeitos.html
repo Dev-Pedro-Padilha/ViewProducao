@@ -13,14 +13,14 @@
         <div class="col-auto">
             <form action="{% url 'defeito' %}" method="GET" class="form-inline"> {% csrf_token %}
                 <div class="form-group">
-                    <label for="searchCodigo" class="mr-2">Pesquise por Código</label>
+                    <label for="searchCodigo" class="mr-2">Código</label>
                     <input type="text" name="searchCodigo" class="form-control" placeholder="Digite o Código">
                     <div class="form-group">
-                        <label for="data_selecionada_inicio" class="mr-2">Data Início</label>
+                        <label for="data_selecionada_inicio" class="mr-2">Início</label>
                         <input type="date" id="data_selecionada_inicio" name="data_selecionada_inicio" value="{{ data_inicio }}" required class="form-control mr-3">
                     </div>
                     <div class="form-group">
-                        <label for="data_selecionada_fim" class="mr-2">Data Fim</label>
+                        <label for="data_selecionada_fim" class="mr-2">Fim</label>
                         <input type="date" id="data_selecionada_fim" name="data_selecionada_fim" value="{{ data_fim }}" required class="form-control mr-3">
                     </div>
                     <div>
@@ -50,7 +50,7 @@
                         </select>
                     </div>
                     <br>
-                    <input type="submit" value="Pesquise" class="btn btn-primary ml-2">
+                    <input type="submit" value="Pesquisar" class="btn btn-primary ml-2">
                 </div>
 
             </form>
@@ -89,18 +89,28 @@
 </div>
 <br>
 
-<h1>Defeitos</h1>
+<select id="indice">
+    <option value="5">Defeito</option>
+    <option value="4">Local Defeito</option>
+    <option value="3">Teste</option>
+</select>
+
+<h1>Defeito Cadastrado</h1>
 <!--Chama script que monta o grafico Defeitos-->
 <canvas id="defeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
 <br><br><br>
-<h1>Local Defeitos</h1>
-<!--Chama script que monta o grafico Local Defeitos-->
+
+
+
+<h1>Defeito - Periférico</h1>
+Chama script que monta o grafico Local Defeitos
 <canvas id="localDefeitosChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
 <br><br><br>
-<h1>Testes</h1>
-<!--Chama script que monta o grafico Local Defeitos-->
+<h1>Defeito - Etapa do Teste</h1>
+Chama script que monta o grafico Local Defeitos
 <canvas id="testesChart" width="500" height="100" style="border: 1px solid #ccc;"></canvas>
 <br><br><br>
+
 
 <!--Monta Tabela-->
 <div class="container">

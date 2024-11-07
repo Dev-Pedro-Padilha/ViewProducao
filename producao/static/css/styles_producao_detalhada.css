@@ -3,7 +3,7 @@
     padding-left: 10px; /* Adiciona espaço à esquerda */
     padding-right: 50px; /* Adiciona espaço à direita */
     border-collapse: collapse;
-    background-color: #4CAF50;; /* Cor azul para os títulos */
+    background-color: #1599ce;; /* Cor azul para os títulos */
     color: white;
 }
 
@@ -67,7 +67,7 @@ tr.clickable-row {
 }
 
 .modal-header {
-    background-color: #4CAF50; /* Cor de fundo do cabeçalho do modal */
+    background-color: #1599ce;; /* Cor de fundo do cabeçalho do modal */
     color: white; /* Cor do texto do cabeçalho */
 }
 
